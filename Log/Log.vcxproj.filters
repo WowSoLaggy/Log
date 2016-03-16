@@ -18,13 +18,13 @@
     <ClInclude Include="stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="LogErrCodes.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Log.h">
+    <ClInclude Include="Include\VersionRetriever.h">
       <Filter>src\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\VersionRetriever.h">
+    <ClInclude Include="Include\LogErrCodes.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Logger.h">
       <Filter>src\Include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClCompile Include="VersionRetriever.cpp">
       <Filter>src\VersionRetriever</Filter>
     </ClCompile>
-    <ClCompile Include="Log.cpp">
+    <ClCompile Include="Logger.cpp">
       <Filter>src\Log</Filter>
     </ClCompile>
   </ItemGroup>

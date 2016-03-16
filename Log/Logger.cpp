@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Log.h"
+#include "Logger.h"
 
 
 namespace Log
