@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "Logger.h"
 
+#include "VersionRetriever.h"
+
 
 namespace Log
 {
 
-	std::string Logger::m_logPath;
+	std::string Logger::m_logFileName;
 	std::string Logger::m_productName;
 
 
@@ -18,13 +20,15 @@ namespace Log
 	{
 	}
 
-	LogErrCode Logger::Init(std::string pLogPath, std::string pProductName, std::string pFilePath)
+	void Logger::Init(std::string pLogFileName, std::string pProductName, std::string pFilePath)
 	{
 		m_productName = pProductName;
-		m_logPath = pLogPath;
+		m_logFileName = pLogFileName;
 
 		std::string version;
-		bool gotVersion = GetProductAndVersion(pFilePath, version);
+		bool gotVersion = false;
+		if (!pFilePath.empty())
+			gotVersion = GetProductVersion(pFilePath, version);
 
 		LOG("");
 
@@ -36,11 +40,9 @@ namespace Log
 			echo(m_productName + std::string(" started."));
 		echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		echo("");
-
-		return logerr_noErr;
 	}
 
-	LogErrCode Logger::Dispose()
+	void Logger::Dispose()
 	{
 		LOG("");
 
@@ -50,7 +52,8 @@ namespace Log
 		echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		echo("");
 
-		return logerr_noErr;
+		m_productName.clear();
+		m_logFileName.clear();
 	}
 
 	void Logger::Echo(std::string pText)
@@ -76,11 +79,17 @@ namespace Log
 		else
 			sprintf_s(TimeStr, "[unknown]");
 
-		m_fOut.open(m_logPath, std::ios::app);
+		m_fOut.open(m_logFileName, std::ios::app);
 		if (m_prefix.empty())
+		{
+			std::cout << TimeStr << " | " << pText << std::endl;
 			m_fOut << TimeStr << " | " << pText << std::endl;
+		}
 		else
+		{
+			std::cout << TimeStr << " | (" << m_prefix << ") " << pText << std::endl;
 			m_fOut << TimeStr << " | (" << m_prefix << ") " << pText << std::endl;
+		}
 		m_fOut.close();
 	}
 

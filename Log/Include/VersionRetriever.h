@@ -10,7 +10,14 @@
 namespace Log
 {
 
-	bool GetProductAndVersion(std::string pFilePath, std::string &strProductVersion);
+	// Returns version of the product from the file with the given name
+	// Params:
+	// [in]  std::string pFilePath				- file to acquire version from
+	// [out] std::string & strProductVersion	- string that contains version if any
+	// Returns:
+	// true		- version successfully acquired
+	// false	- failed to get version
+	bool GetProductVersion(std::string pFilePath, std::string &strProductVersion);
 
 } // Log
 

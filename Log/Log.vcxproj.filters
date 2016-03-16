@@ -21,9 +21,6 @@
     <ClInclude Include="Include\VersionRetriever.h">
       <Filter>src\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\LogErrCodes.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Logger.h">
       <Filter>src\Include</Filter>
     </ClInclude>

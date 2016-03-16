@@ -5,11 +5,9 @@
 
 
 #include <Windows.h>
-#include <string>
-#include <vector>
 #include <fstream>
-#include <time.h>
-#include <iostream>
+#include <regex>
+#include "CppUnitTest.h"
 
 
 #endif // STDAFX_H

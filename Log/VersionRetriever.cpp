@@ -5,7 +5,7 @@
 namespace Log
 {
 
-	bool GetProductAndVersion(std::string pFilePath, std::string &strProductVersion)
+	bool GetProductVersion(std::string pFilePath, std::string &strProductVersion)
 	{
 		// allocate a block of memory for the version info
 		unsigned long dummy;
