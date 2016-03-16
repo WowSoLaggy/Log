@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <regex>
+#include <mutex>
 #include "CppUnitTest.h"
 
 

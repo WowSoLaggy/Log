@@ -7,8 +7,10 @@
 namespace Log
 {
 
-	std::string Logger::m_logFileName;
-	std::string Logger::m_productName;
+	volatile bool Logger::s_isInitialized = false;
+	std::string Logger::s_logFileName;
+	std::string Logger::s_productName;
+	std::mutex Logger::s_logMutex;
 
 
 	Logger::Logger(std::string pPrefix)
@@ -22,38 +24,55 @@ namespace Log
 
 	void Logger::Init(std::string pLogFileName, std::string pProductName, std::string pFilePath)
 	{
-		m_productName = pProductName;
-		m_logFileName = pLogFileName;
+		s_logMutex.lock();
+
+		s_productName = pProductName;
+		s_logFileName = pLogFileName;
 
 		std::string version;
 		bool gotVersion = false;
 		if (!pFilePath.empty())
 			gotVersion = GetProductVersion(pFilePath, version);
 
+		s_isInitialized = true;
+
+		s_logMutex.unlock();
+
+		// Print welcome message
+
 		LOG("");
 
 		echo("");
 		echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		if (gotVersion)
-			echo(m_productName + std::string(" v.").append(version).append(" started."));
+			echo(s_productName + std::string(" v.").append(version).append(" started."));
 		else
-			echo(m_productName + std::string(" started."));
+			echo(s_productName + std::string(" started."));
 		echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		echo("");
 	}
 
 	void Logger::Dispose()
 	{
+		// Print bye message
+
 		LOG("");
 
 		echo("");
 		echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-		echo(m_productName + std::string(" stopped."));
+		echo(s_productName + std::string(" stopped."));
 		echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		echo("");
 
-		m_productName.clear();
-		m_logFileName.clear();
+		s_logMutex.lock();
+
+		// Clear static vars
+		s_productName.clear();
+		s_logFileName.clear();
+
+		s_isInitialized = false;
+
+		s_logMutex.unlock();
 	}
 
 	void Logger::Echo(std::string pText)
@@ -79,18 +98,25 @@ namespace Log
 		else
 			sprintf_s(TimeStr, "[unknown]");
 
-		m_fOut.open(m_logFileName, std::ios::app);
+		s_logMutex.lock();
+
+		if (!s_isInitialized)
+			return;
+
+		m_logFile.open(s_logFileName, std::ios::app);
 		if (m_prefix.empty())
 		{
-			std::cout << TimeStr << " | " << pText << std::endl;
-			m_fOut << TimeStr << " | " << pText << std::endl;
+			std::cout << TimeStr << " > " << pText << std::endl;
+			m_logFile << TimeStr << " > " << pText << std::endl;
 		}
 		else
 		{
-			std::cout << TimeStr << " | (" << m_prefix << ") " << pText << std::endl;
-			m_fOut << TimeStr << " | (" << m_prefix << ") " << pText << std::endl;
+			std::cout << TimeStr << " > " << m_prefix << ": " << pText << std::endl;
+			m_logFile << TimeStr << " > " << m_prefix << ": " << pText << std::endl;
 		}
-		m_fOut.close();
+		m_logFile.close();
+
+		s_logMutex.unlock();
 	}
 
 } // Log

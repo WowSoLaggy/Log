@@ -7,7 +7,7 @@ namespace Log
 
 	bool GetProductVersion(std::string pFilePath, std::string &strProductVersion)
 	{
-		// allocate a block of memory for the version info
+		// Allocate a block of memory for the version info
 		unsigned long dummy;
 		unsigned long dwSize = GetFileVersionInfoSize(pFilePath.c_str(), &dummy);
 		if (dwSize == 0)
@@ -18,14 +18,14 @@ namespace Log
 		}
 		std::vector<unsigned char> data(dwSize);
 
-		// load the version info
+		// Load the version info
 		if (!GetFileVersionInfo(pFilePath.c_str(), NULL, dwSize, &data[0]))
 		{
 			//TRACE("GetFileVersionInfo failed with error %d\n", GetLastError());
 			return false;
 		}
 
-		// get the name and version strings
+		// Get the name and version strings
 		LPVOID ptrVersion = NULL;
 		unsigned int iVersion = 0;
 
@@ -42,10 +42,10 @@ namespace Log
 		// come from dwFileVersionMS, last two come from dwFileVersionLS
 		strProductVersion.clear();
 		strProductVersion.
-			append(std::to_string((verInfo->dwFileVersionMS >> 16) & 0xffff).append(".").
-				append(std::to_string((verInfo->dwFileVersionMS >> 0) & 0xffff)).append(".").
-				append(std::to_string((verInfo->dwFileVersionLS >> 16) & 0xffff)).append(".").
-				append(std::to_string((verInfo->dwFileVersionLS >> 0) & 0xffff)));
+			append(std::to_string((verInfo->dwProductVersionMS >> 16) & 0xffff).append(".").
+				append(std::to_string((verInfo->dwProductVersionMS >> 0) & 0xffff)).append(".").
+				append(std::to_string((verInfo->dwProductVersionLS >> 16) & 0xffff)).append(".").
+				append(std::to_string((verInfo->dwProductVersionLS >> 0) & 0xffff)));
 
 		return true;
 	}

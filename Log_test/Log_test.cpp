@@ -61,7 +61,8 @@ namespace Log_test
 			LOGINIT(logFileName, "Logger", "Log_test.dll");
 			Logger::WriteMessage("Logger inited.");
 
-			std::string funcName = "Foo::Bar";
+			std::string funcName = "Foo::Bar()";
+			std::string funcNameRegex = "Foo::Bar\\(\\)";
 			std::string testMessage = "Hello, world!";
 			LOG(funcName);
 			echo(testMessage);
@@ -74,8 +75,8 @@ namespace Log_test
 			file.close();
 
 			// testLine should contain something like this:
-			// 2016.03.16 19:49:45 | (Foo::Bar) Hello, world!
-			std::regex regex(std::string("\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}:\\d{2} \\| \\(").append(funcName).append("\\) ").append(testMessage));
+			// 2016.03.16 19:49:45 > Foo::Bar(): Hello, world!
+			std::regex regex(std::string("\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}:\\d{2} . ").append(funcNameRegex).append(": ").append(testMessage));
 			bool res = std::regex_match(testLine, regex);
 
 			// Cleanup after ourselves

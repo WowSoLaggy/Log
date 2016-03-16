@@ -1,7 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Module:		Logger
 // Author:		Anton Egorov
-// Description:	Class that logs any text to the console and the given file
+// Description:	Class that logs any text to the console and the given file.
+//				Thread-safety is guaranteed.
 //
 // Usage example:
 //
@@ -82,13 +83,15 @@ namespace Log
 		// Disposes logger. Writes the bye message to the log
 		static void Dispose();
 
-	private:
+	protected:
 
 		std::string m_prefix;
-		std::fstream m_fOut;
+		std::fstream m_logFile;
 
-		static std::string m_productName;
-		static std::string m_logFileName;
+		volatile static bool s_isInitialized;
+		static std::string s_productName;
+		static std::string s_logFileName;
+		static std::mutex s_logMutex;
 	};
 
 } // Log
