@@ -68,10 +68,12 @@ namespace Log
 		// Logger destructor
 		virtual ~Logger();
 
+
 		// Logs the given message
 		//Params:
 		// [in] std::string pText - text to log
 		void Echo(std::string pText);
+
 
 		// Initializes logger. Should be called first of all. Writes the welcome message to the log
 		// Params:
@@ -82,6 +84,9 @@ namespace Log
 
 		// Disposes logger. Writes the bye message to the log
 		static void Dispose();
+
+		// Returns the DateTime string like this: "YYYY.MM.DD HH.MM.SS"
+		static std::string GetDateTimeString();
 
 	protected:
 

@@ -78,18 +78,20 @@ namespace Log
 		s_logMutex.unlock();
 	}
 
-	void Logger::Echo(std::string pText)
+	std::string Logger::GetDateTimeString()
 	{
 		// Get local time and convert it to struct 'tm'
 		time_t Clock;
 		time(&Clock);
 
 		tm newTime;
-		char TimeStr[128];
+		std::string dateTimeStr;
+		dateTimeStr.resize(20);
 
 		if (!localtime_s(&newTime, &Clock))
 		{
-			sprintf_s(TimeStr,
+			sprintf_s(&dateTimeStr[0],
+				dateTimeStr.size(),
 				"%04d.%02d.%02d %02d:%02d:%02d",
 				1900 + newTime.tm_year,
 				1 + newTime.tm_mon,
@@ -99,7 +101,17 @@ namespace Log
 				newTime.tm_sec);
 		}
 		else
-			sprintf_s(TimeStr, "[unknown]");
+			sprintf_s(&dateTimeStr[0], dateTimeStr.size(), "[unknown]");
+
+		// Delete trailing \0 symbol
+		dateTimeStr.erase(dateTimeStr.end() - 1);
+
+		return dateTimeStr;
+	}
+
+	void Logger::Echo(std::string pText)
+	{
+		std::string dateTimeStr = GetDateTimeString();
 
 		s_logMutex.lock();
 
@@ -109,13 +121,13 @@ namespace Log
 		std::fstream m_logFile(s_logFileName, std::ios::app);
 		if (m_prefix.empty())
 		{
-			std::cout << TimeStr << " > " << pText << std::endl;
-			m_logFile << TimeStr << " > " << pText << std::endl;
+			std::cout << dateTimeStr << " > " << pText << std::endl;
+			m_logFile << dateTimeStr << " > " << pText << std::endl;
 		}
 		else
 		{
-			std::cout << TimeStr << " > " << m_prefix << ": " << pText << std::endl;
-			m_logFile << TimeStr << " > " << m_prefix << ": " << pText << std::endl;
+			std::cout << dateTimeStr << " > " << m_prefix << ": " << pText << std::endl;
+			m_logFile << dateTimeStr << " > " << m_prefix << ": " << pText << std::endl;
 		}
 		m_logFile.close();
 
