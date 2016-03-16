@@ -9,6 +9,8 @@
 
 
 #define LOGINIT(logPath, productName, fileName) Log::Logger::Init(logPath, productName, fileName)
+#define LOGDISPOSE Log::Logger::Dispose()
+
 #define LOG(prefix) Log::Logger log(prefix)
 #define echo(text) log.Echo(text)
 
