@@ -8,6 +8,7 @@
 #include "VersionRetriever.h"
 
 
+#define LOGINIT(logPath, productName, fileName) Log::Logger::Init(logPath, productName, fileName)
 #define LOG(prefix) Log::Logger log(prefix)
 #define echo(text) log.Echo(text)
 
