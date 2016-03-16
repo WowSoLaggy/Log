@@ -26,12 +26,15 @@ namespace Log
 	{
 		s_logMutex.lock();
 
-		s_productName = pProductName;
+		if (pProductName.empty())
+			s_productName = "Logging"; // To write something like "Logging started"
+		else
+			s_productName = pProductName;
 		s_logFileName = pLogFileName;
 
 		std::string version;
 		bool gotVersion = false;
-		if (!pFilePath.empty())
+		if ((!pFilePath.empty()) && (!pProductName.empty())) // Don't acquire version if the product name is not provided
 			gotVersion = GetProductVersion(pFilePath, version);
 
 		s_isInitialized = true;
@@ -103,7 +106,7 @@ namespace Log
 		if (!s_isInitialized)
 			return;
 
-		m_logFile.open(s_logFileName, std::ios::app);
+		std::fstream m_logFile(s_logFileName, std::ios::app);
 		if (m_prefix.empty())
 		{
 			std::cout << TimeStr << " > " << pText << std::endl;

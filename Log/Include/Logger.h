@@ -41,7 +41,7 @@
 // Disposes logger. Writes the bye message to the log
 #define LOGDISPOSE Log::Logger::Dispose()
 
-// Define that should be called before any echo-calls. Initializes the log object for the current function
+// Macros that should be called before any echo-calls. Initializes the log object for the current function
 // Params:
 // [in] std::string pPrefix	- function name
 #define LOG(pPrefix) Log::Logger log(pPrefix)
@@ -85,13 +85,12 @@ namespace Log
 
 	protected:
 
-		std::string m_prefix;
-		std::fstream m_logFile;
+		std::string m_prefix;					// Function name (or whatever was sent to the LOG macros)
 
-		volatile static bool s_isInitialized;
-		static std::string s_productName;
-		static std::string s_logFileName;
-		static std::mutex s_logMutex;
+		volatile static bool s_isInitialized;	// Indicates whether the Logger class was initialized and is ready to log
+		static std::string s_productName;		// Product name. Used in the welcome and bye messages
+		static std::string s_logFileName;		// Name of the file to log into
+		static std::mutex s_logMutex;			// Locker to provide thread-safety of Logger operations
 	};
 
 } // Log
