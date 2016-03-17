@@ -109,7 +109,7 @@ namespace Log
 		return dateTimeStr;
 	}
 
-	void Logger::Echo(std::string pText)
+	void Logger::EchoDateTime()
 	{
 		std::string dateTimeStr = GetDateTimeString();
 
@@ -121,13 +121,13 @@ namespace Log
 		std::fstream m_logFile(s_logFileName, std::ios::app);
 		if (m_prefix.empty())
 		{
-			std::cout << dateTimeStr << " > " << pText << std::endl;
-			m_logFile << dateTimeStr << " > " << pText << std::endl;
+			std::cout << dateTimeStr << " > ";
+			m_logFile << dateTimeStr << " > ";
 		}
 		else
 		{
-			std::cout << dateTimeStr << " > " << m_prefix << ": " << pText << std::endl;
-			m_logFile << dateTimeStr << " > " << m_prefix << ": " << pText << std::endl;
+			std::cout << dateTimeStr << " > " << m_prefix << ": ";
+			m_logFile << dateTimeStr << " > " << m_prefix << ": ";
 		}
 		m_logFile.close();
 

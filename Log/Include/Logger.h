@@ -47,9 +47,7 @@
 #define LOG(pPrefix) Log::Logger log(pPrefix)
 
 // Logs the given message
-//Params:
-// [in] std::string pText - text to log
-#define echo(pText) log.Echo(pText)
+#define echo log.Echo
 
 
 namespace Log
@@ -70,9 +68,14 @@ namespace Log
 
 
 		// Logs the given message
-		//Params:
-		// [in] std::string pText - text to log
-		void Echo(std::string pText);
+		// Params:
+		// [in] 
+		template <typename ... Args>
+		void Echo(Args ... pArgs)
+		{
+			EchoDateTime();
+			EchoInternal(pArgs ...);
+		}
 
 
 		// Initializes logger. Should be called first of all. Writes the welcome message to the log
@@ -96,6 +99,44 @@ namespace Log
 		static std::string s_productName;		// Product name. Used in the welcome and bye messages
 		static std::string s_logFileName;		// Name of the file to log into
 		static std::mutex s_logMutex;			// Locker to provide thread-safety of Logger operations
+
+		void EchoDateTime();					// Logs current date and time
+
+		// Echoes the bag of arguments
+		template <typename First, typename ... Rest>
+		void EchoInternal(First pFirst, Rest ... pRest)
+		{
+			s_logMutex.lock();
+
+			if (!s_isInitialized)
+				return;
+
+			std::fstream m_logFile(s_logFileName, std::ios::app);
+			std::cout << pFirst;
+			m_logFile << pFirst;
+			m_logFile.close();
+
+			s_logMutex.unlock();
+
+			EchoInternal(pRest ...);
+		}
+
+		// Echoes the last of arguments from the args bag
+		template <typename Par>
+		void EchoInternal(Par pPar)
+		{
+			s_logMutex.lock();
+
+			if (!s_isInitialized)
+				return;
+
+			std::fstream m_logFile(s_logFileName, std::ios::app);
+			std::cout << pPar << std::endl;
+			m_logFile << pPar << std::endl;
+			m_logFile.close();
+
+			s_logMutex.unlock();
+		}
 	};
 
 } // Log

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <regex>
 #include <mutex>
+#include <iostream>
 #include "CppUnitTest.h"
 
 

@@ -63,9 +63,12 @@ namespace Log_test
 
 			std::string funcName = "Foo::Bar()";
 			std::string funcNameRegex = "Foo::Bar\\(\\)";
-			std::string testMessage = "Hello, world!";
+			std::string testMessage1 = "Hello, world!";
+			std::string testMessage2 = ". One more test message";
+			std::string testMessage3 = ". And the last one.";
 			LOG(funcName);
-			echo(testMessage);
+			echo(testMessage1, testMessage2, testMessage3);
+			echo(testMessage1);
 			Logger::WriteMessage("Echoed...");
 
 			std::string testLine;
@@ -76,7 +79,8 @@ namespace Log_test
 
 			// testLine should contain something like this:
 			// 2016.03.16 19:49:45 > Foo::Bar(): Hello, world!
-			std::regex regex(std::string("\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}:\\d{2} . ").append(funcNameRegex).append(": ").append(testMessage));
+			std::regex regex(std::string("\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}:\\d{2} . ").append(funcNameRegex).append(": ").
+				append(testMessage1).append(testMessage2).append(testMessage3));
 			bool res = std::regex_match(testLine, regex);
 
 			// Cleanup after ourselves
