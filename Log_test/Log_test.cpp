@@ -68,7 +68,6 @@ namespace Log_test
 			std::string testMessage3 = ". And the last one.";
 			LOG(funcName);
 			echo(testMessage1, testMessage2, testMessage3);
-			echo(testMessage1);
 			Logger::WriteMessage("Echoed...");
 
 			std::string testLine;

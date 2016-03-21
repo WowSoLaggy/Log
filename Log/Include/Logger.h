@@ -10,7 +10,7 @@
 // {
 //		LOG("SomeFunc()");
 //		...
-//		echo("Hello, world!");
+//		echo("Hello, world! Result is: ", someVariable, ".");
 //		...
 // }
 //
@@ -122,8 +122,8 @@ namespace Log
 		}
 
 		// Echoes the last of arguments from the args bag
-		template <typename Par>
-		void EchoInternal(Par pPar)
+		template <typename T>
+		void EchoInternal(T pPar)
 		{
 			s_logMutex.lock();
 
@@ -137,6 +137,7 @@ namespace Log
 
 			s_logMutex.unlock();
 		}
+
 	};
 
 } // Log
