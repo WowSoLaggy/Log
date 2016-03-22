@@ -24,21 +24,22 @@ namespace Log
 
 	void Logger::Init(std::string pLogFileName, std::string pProductName, std::string pFilePath)
 	{
-		s_logMutex.lock();
-
-		if (pProductName.empty())
-			s_productName = "Logging"; // To write something like "Logging started"
-		else
-			s_productName = pProductName;
-		s_logFileName = pLogFileName;
-
-		std::string version;
 		bool gotVersion = false;
-		if ((!pFilePath.empty()) && (!pProductName.empty())) // Don't acquire version if the product name is not provided
-			gotVersion = GetProductVersion(pFilePath, version);
+		std::string version = "";
 
-		s_isInitialized = true;
+		s_logMutex.lock();
+		{
+			if (pProductName.empty())
+				s_productName = "Logging"; // To write something like "Logging started"
+			else
+				s_productName = pProductName;
+			s_logFileName = pLogFileName;
 
+			if ((!pFilePath.empty()) && (!pProductName.empty())) // Don't acquire version if the product name is not provided
+				gotVersion = GetProductVersion(pFilePath, version);
+
+			s_isInitialized = true;
+		}
 		s_logMutex.unlock();
 
 		// Print welcome message
@@ -68,13 +69,13 @@ namespace Log
 		echo("");
 
 		s_logMutex.lock();
+		{
+			// Clear static vars
+			s_productName.clear();
+			s_logFileName.clear();
 
-		// Clear static vars
-		s_productName.clear();
-		s_logFileName.clear();
-
-		s_isInitialized = false;
-
+			s_isInitialized = false;
+		}
 		s_logMutex.unlock();
 	}
 
@@ -114,23 +115,20 @@ namespace Log
 		std::string dateTimeStr = GetDateTimeString();
 
 		s_logMutex.lock();
-
-		if (!s_isInitialized)
-			return;
-
-		std::fstream m_logFile(s_logFileName, std::ios::app);
-		if (m_prefix.empty())
 		{
-			std::cout << dateTimeStr << " > ";
-			m_logFile << dateTimeStr << " > ";
+			std::fstream m_logFile(s_logFileName, std::ios::app);
+			if (m_prefix.empty())
+			{
+				std::cout << dateTimeStr << " > ";
+				m_logFile << dateTimeStr << " > ";
+			}
+			else
+			{
+				std::cout << dateTimeStr << " > " << m_prefix << ": ";
+				m_logFile << dateTimeStr << " > " << m_prefix << ": ";
+			}
+			m_logFile.close();
 		}
-		else
-		{
-			std::cout << dateTimeStr << " > " << m_prefix << ": ";
-			m_logFile << dateTimeStr << " > " << m_prefix << ": ";
-		}
-		m_logFile.close();
-
 		s_logMutex.unlock();
 	}
 

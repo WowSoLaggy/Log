@@ -32,6 +32,21 @@ namespace Log_test
 			Logger::WriteMessage("Version seems to be correct.");
 		}
 
+		TEST_METHOD(CheckLogNoInit)
+		{
+			try
+			{
+				LOG("CheckLogNoInit()");
+				echo("Hello, world!");
+			}
+			catch (...)
+			{
+				Assert::Fail(L"Exception thrown.");
+			}
+
+			Logger::WriteMessage("No exception thrown.");
+		}
+
 		TEST_METHOD(CheckLogFileCreation)
 		{
 			std::string logFileName = "Log.log";
