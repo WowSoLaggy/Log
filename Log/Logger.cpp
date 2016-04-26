@@ -115,21 +115,19 @@ namespace Log
 		std::string dateTimeStr = GetDateTimeString();
 
 		s_logMutex.lock();
+
+		std::fstream m_logFile(s_logFileName, std::ios::app);
+		if (m_prefix.empty())
 		{
-			std::fstream m_logFile(s_logFileName, std::ios::app);
-			if (m_prefix.empty())
-			{
-				std::cout << dateTimeStr << " > ";
-				m_logFile << dateTimeStr << " > ";
-			}
-			else
-			{
-				std::cout << dateTimeStr << " > " << m_prefix << ": ";
-				m_logFile << dateTimeStr << " > " << m_prefix << ": ";
-			}
-			m_logFile.close();
+			std::cout << dateTimeStr << " > ";
+			m_logFile << dateTimeStr << " > ";
 		}
-		s_logMutex.unlock();
+		else
+		{
+			std::cout << dateTimeStr << " > " << m_prefix << ": ";
+			m_logFile << dateTimeStr << " > " << m_prefix << ": ";
+		}
+		m_logFile.close();
 	}
 
 } // Log
