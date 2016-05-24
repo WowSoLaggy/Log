@@ -1,8 +1,13 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Module:		Logger
 // Author:		Anton Egorov
-// Description:	Class that logs any text to the console and the given file.
-//				Thread-safety is guaranteed.
+// Description:	Log library is the one-header-only library that provides
+//				the log of any text to the console and to the given file
+//				simultaneously. Thread-safety is guaranteed (or at least
+//				should be). Also the VersionRetriever class is provided
+//				to acquire product version from file (used for the welcome
+//				logger message).
+//
 //
 // Usage example:
 //
@@ -63,15 +68,15 @@
 // [in] std::string pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
 // [in] std::string pProductName	- product name used in the welcome message
 // [in] std::string pFilePath		- name of the file to take version from. Can be empty
-#define LOGINIT(pLogFileName, pProductName, pFilePath) Log::Log::Init(pLogFileName, pProductName, pFilePath)
+#define LOGINIT(pLogFileName, pProductName, pFilePath) Log::Log<void>::Init(pLogFileName, pProductName, pFilePath)
 
 // Disposes logger. Writes the bye message to the log
-#define LOGDISPOSE Log::Log::Dispose()
+#define LOGDISPOSE Log::Log<void>::Dispose()
 
 // Macros that should be called before any echo-calls. Initializes the log object for the current function
 // Params:
 // [in] std::string pPrefix	- function name
-#define LOG(pPrefix) ::Log::Log log(pPrefix)
+#define LOG(pPrefix) ::Log::Log<void> log(pPrefix)
 
 // Logs all given args
 #define echo log.Echo
@@ -147,7 +152,8 @@ namespace Log
 
 
 
-		// Class that logs any text to the console and the given file
+	// Class that logs any text to the console and the given file
+	template <typename T>
 	class Log
 	{
 	public:
@@ -327,10 +333,17 @@ namespace Log
 
 	}; // Log
 
-	volatile bool Log::s_isInitialized = false;
-	std::string Log::s_logFileName;
-	std::string Log::s_productName;
-	std::mutex Log::s_logMutex;
+	template<typename T>
+	volatile bool Log<T>::s_isInitialized = false;
+
+	template<typename T>
+	std::string Log<T>::s_logFileName;
+
+	template<typename T>
+	std::string Log<T>::s_productName;
+
+	template<typename T>
+	std::mutex Log<T>::s_logMutex;
 
 } // ns Log
 
