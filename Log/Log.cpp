@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Logger.h"
+#include "Log.h"
 
 #include "VersionRetriever.h"
 
@@ -7,22 +7,22 @@
 namespace Log
 {
 
-	volatile bool Logger::s_isInitialized = false;
-	std::string Logger::s_logFileName;
-	std::string Logger::s_productName;
-	std::mutex Logger::s_logMutex;
+	volatile bool Log::s_isInitialized = false;
+	std::string Log::s_logFileName;
+	std::string Log::s_productName;
+	std::mutex Log::s_logMutex;
 
 
-	Logger::Logger(std::string pPrefix)
+	Log::Log(std::string pPrefix)
 	{
 		m_prefix = pPrefix;
 	}
 
-	Logger::~Logger()
+	Log::~Log()
 	{
 	}
 
-	void Logger::Init(std::string pLogFileName, std::string pProductName, std::string pFilePath)
+	void Log::Init(std::string pLogFileName, std::string pProductName, std::string pFilePath)
 	{
 		bool gotVersion = false;
 		std::string version = "";
@@ -56,7 +56,7 @@ namespace Log
 		echo("");
 	}
 
-	void Logger::Dispose()
+	void Log::Dispose()
 	{
 		// Print bye message
 
@@ -79,7 +79,7 @@ namespace Log
 		s_logMutex.unlock();
 	}
 
-	std::string Logger::GetDateTimeString()
+	std::string Log::GetDateTimeString()
 	{
 		// Get local time and convert it to struct 'tm'
 		time_t Clock;
@@ -110,7 +110,7 @@ namespace Log
 		return dateTimeStr;
 	}
 
-	void Logger::EchoDateTime()
+	void Log::EchoDateTime()
 	{
 		std::string dateTimeStr = GetDateTimeString();
 

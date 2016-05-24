@@ -21,7 +21,7 @@
     <ClInclude Include="Include\VersionRetriever.h">
       <Filter>src\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Logger.h">
+    <ClInclude Include="Include\Log.h">
       <Filter>src\Include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClCompile Include="VersionRetriever.cpp">
       <Filter>src\VersionRetriever</Filter>
     </ClCompile>
-    <ClCompile Include="Logger.cpp">
+    <ClCompile Include="Log.cpp">
       <Filter>src\Log</Filter>
     </ClCompile>
   </ItemGroup>

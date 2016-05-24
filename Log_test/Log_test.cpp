@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 
-#include "Logger.h"
+#include "Log.h"
 #include "VersionRetriever.h"
 
 
