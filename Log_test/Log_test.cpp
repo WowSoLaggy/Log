@@ -2,7 +2,6 @@
 #include "CppUnitTest.h"
 
 #include "Log.h"
-#include "VersionRetriever.h"
 
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

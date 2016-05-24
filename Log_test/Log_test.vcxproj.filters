@@ -10,6 +10,9 @@
     <Filter Include="rsrc">
       <UniqueIdentifier>{882c4720-3235-44fa-bd17-e1ab75bdce53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{7c7a860f-46e3-4c35-9298-387a09a306df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -17,6 +20,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>rsrc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Log.h">
+      <Filter>libs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
