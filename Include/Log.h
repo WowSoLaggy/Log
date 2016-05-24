@@ -99,7 +99,7 @@ namespace Log
 	// Returns:
 	// true		- version successfully acquired
 	// false	- failed to get version
-	bool GetProductVersion(std::string pFilePath, std::string &strProductVersion)
+	static bool GetProductVersion(std::string pFilePath, std::string &strProductVersion)
 	{
 		// Allocate a block of memory for the version info
 		unsigned long dummy;
