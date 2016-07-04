@@ -1,12 +1,17 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Module:		Logger
+// Module:		Log
+// Version:		1.2
 // Author:		Anton Egorov
 // Description:	Log library is the one-header-only library that provides
 //				the log of any text to the console and to the given file
 //				simultaneously. Thread-safety is guaranteed (or at least
-//				should be). Also the VersionRetriever class is provided
-//				to acquire product version from file (used for the welcome
-//				logger message).
+//				should be). There is an option to rotate the log file if
+//				it exceeds the given size on the log init.
+//				Also the VersionRetriever class is provided to acquire product
+//				version from file (used for the welcome logger message).
+//
+//				Changelog:
+//				v1.2: Log rotation is now supported (only on log init).
 //
 //
 // Usage example:
@@ -26,6 +31,15 @@
 //		SomeFunc();
 //		...
 //		LOGDISPOSE();
+// }
+//
+//
+// To perform log rotation:
+//
+// void main()
+// {
+//		LOGINIT("Log.log", "MyProduct", "ThisFile.exe", (2 << 16)); // Rotates the log file if it exceeds 65KB
+//		...
 // }
 //
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -211,7 +225,7 @@ namespace Log
 		}
 
 
-		// Initializes logger. Should be called first of all. Writes the welcome message to the log. Checks if the log file needs to be rotated
+		// Initializes logger. Should be called first of all. Writes the welcome message to the log. Performs the log file rotation if needed
 		// Params:
 		// [in] std::string pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
 		// [in] std::string pProductName	- product name used in the welcome message
