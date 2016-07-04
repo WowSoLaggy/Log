@@ -104,6 +104,72 @@ namespace Log_test
 			Logger::WriteMessage("Log output to file is valid.");
 		}
 
+		TEST_METHOD(CheckLogRotate_NoSize)
+		{
+			std::string logFileName = "Log.log";
+			std::string logFileName0 = "Log.log.0";
+			std::string logFileName1 = "Log.log.1";
+			DeleteFile(logFileName.c_str());
+			DeleteFile(logFileName0.c_str());
+			DeleteFile(logFileName1.c_str());
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", -1);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file was not created.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			LOGDISPOSE;
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", -1);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			LOGDISPOSE;
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 0);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+			Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			LOGDISPOSE;
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", -1);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+			Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			LOGDISPOSE;
+
+			DeleteFile(logFileName.c_str());
+			DeleteFile(logFileName0.c_str());
+		}
+
+		TEST_METHOD(CheckLogRotate_WithSize)
+		{
+			std::string logFileName = "Log.log";
+			std::string logFileName0 = "Log.log.0";
+			DeleteFile(logFileName.c_str());
+			DeleteFile(logFileName0.c_str());
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 2000);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file was not created.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+			LOGDISPOSE;
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 2000);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+			LOG("Test::Test()");
+			std::string str(2048, 'q');
+			echo(str);
+			LOGDISPOSE;
+
+			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 2000);
+			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+			Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
+			LOGDISPOSE;
+
+			DeleteFile(logFileName.c_str());
+			DeleteFile(logFileName0.c_str());
+		}
+
 	};
 
 } // Log_test

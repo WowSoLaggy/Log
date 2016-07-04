@@ -65,10 +65,18 @@
 
 // Initializes logger. Should be called first of all. Writes the welcome message to the log
 // Params:
-// [in] std::string pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
-// [in] std::string pProductName	- product name used in the welcome message
-// [in] std::string pFilePath		- name of the file to take version from. Can be empty
-#define LOGINIT(pLogFileName, pProductName, pFilePath) Log::Log<void>::Init(pLogFileName, pProductName, pFilePath)
+// [in] const std::string & pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
+// [in] const std::string & pProductName	- product name used in the welcome message
+// [in] const std::string & pFilePath		- name of the file to take version from. Can be empty
+#define LOGINIT(pLogFileName, pProductName, pFilePath) Log::Log<void>::Init(pLogFileName, pProductName, pFilePath, -1)
+
+// Initializes logger. Should be called first of all. Writes the welcome message to the log. Checks if the log file is to be rotated
+// Params:
+// [in] const std::string & pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
+// [in] const std::string & pProductName	- product name used in the welcome message
+// [in] const std::string & pFilePath		- name of the file to take version from. Can be empty
+// [in] int					pRotateFileSize	- maximum size of the log file. Checked only on the log init. -1 means no log rotation, 0 means rotate every time the log is inited
+#define LOGINIT_ROTATE(pLogFileName, pProductName, pFilePath, pRotateFileSize) Log::Log<void>::Init(pLogFileName, pProductName, pFilePath, pRotateFileSize)
 
 // Disposes logger. Writes the bye message to the log
 #define LOGDISPOSE Log::Log<void>::Dispose()
@@ -87,19 +95,19 @@ namespace Log
 {
 
 	// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-	// Version Retriever
+	// File-related routine
 	// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 
 	// Returns version of the product from the file with the given name
 	// Params:
-	// [in]  std::string pFilePath				- file to acquire version from
+	// [in]  const std::string & pFilePath		- path to the file to acquire version from
 	// [out] std::string & strProductVersion	- string that contains version if any
 	// Returns:
 	// true		- version successfully acquired
 	// false	- failed to get version
-	static bool GetProductVersion(std::string pFilePath, std::string &strProductVersion)
+	static bool GetProductVersion(const std::string &pFilePath, std::string &strProductVersion)
 	{
 		// Allocate a block of memory for the version info
 		unsigned long dummy;
@@ -146,6 +154,28 @@ namespace Log
 
 
 
+	// Checks whether the file with the given name exists
+	// Params:
+	// [in] const std::string & pFileName	- name of the file to check for existance
+	static bool CheckFileExists(const std::string &pFileName)
+	{
+		struct stat buffer;
+		return (stat(pFileName.c_str(), &buffer) == 0);
+	}
+
+
+	
+	// Returns the size of the file with the given name. It doesn't check it's existance
+	// Params:
+	// [in] const std::string & pFileName	- name of the file to get size of
+	static size_t GetFileSize(const std::string &pFileName)
+	{
+		std::ifstream file(pFileName.c_str(), std::ios::ate | std::ios::binary);
+		return file.tellg();
+	}
+
+
+
 	// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 	// Logger itself
 	// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -161,7 +191,7 @@ namespace Log
 		// Logger constructor that should be called before any echo-calls. Initializes the log object for the current function
 		// Params:
 		// [in] std::string pPrefix	- function name
-		Log(std::string pPrefix) { m_prefix = pPrefix; }
+		Log(const std::string &pPrefix) { m_prefix = pPrefix; }
 
 		// Logger destructor
 		virtual ~Log() { }
@@ -181,13 +211,20 @@ namespace Log
 		}
 
 
-		// Initializes logger. Should be called first of all. Writes the welcome message to the log
+		// Initializes logger. Should be called first of all. Writes the welcome message to the log. Checks if the log file needs to be rotated
 		// Params:
 		// [in] std::string pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
 		// [in] std::string pProductName	- product name used in the welcome message
 		// [in] std::string pFilePath		- name of the file to take version from. Can be empty
-		static void Init(std::string pLogFileName, std::string pProductName, std::string pFilePath)
+		// [in] int			pRotateFileSize	- maximum size of the log file. Checked only on the log init. -1 means no log rotation, 0 means rotate every time the log is inited
+		static void Init(const std::string &pLogFileName, const std::string &pProductName, const std::string &pFilePath, int pRotateFileSize)
 		{
+
+			CheckLogFileRotation(pLogFileName, pRotateFileSize);
+
+
+			// Generate welcome message
+
 			bool gotVersion = false;
 			std::string version = "";
 
@@ -329,6 +366,34 @@ namespace Log
 			m_logFile.close();
 
 			s_logMutex.unlock();
+		}
+
+	private:
+
+		// Performs the log file rotation if needed
+		static void CheckLogFileRotation(const std::string &pFileName, int pRotateFileSize)
+		{
+			if (pRotateFileSize <= -1)
+				return;
+			if (!CheckFileExists(pFileName))
+				return;
+			if ((pRotateFileSize != 0) && (static_cast<int>(GetFileSize(pFileName)) < pRotateFileSize))
+				return;
+
+			// Generate new file name. Iterate through the file names to find the absent file name
+
+			std::string newFileName;
+			int newFileSuffix = 0;
+			while (true)
+			{
+				newFileName = std::string(pFileName) + "." + std::to_string(newFileSuffix++);
+				if (!CheckFileExists(newFileName))
+					break;
+			}
+
+			//
+
+			std::rename(pFileName.c_str(), newFileName.c_str());
 		}
 
 	}; // Log
