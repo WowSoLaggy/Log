@@ -179,9 +179,9 @@ namespace Log
 
 
 	
-	//// Returns the size of the file with the given name. It doesn't check it's existance
-	//// Params:
-	//// [in] const std::string & pFileName	- name of the file to get size of
+	// Returns the size of the file with the given name. It doesn't check it's existance
+	// Params:
+	// [in] const std::string & pFileName	- name of the file to get size of
 	static long int GetFileSize(const std::string &pFileName)
 	{
 		struct stat stat_buf;
