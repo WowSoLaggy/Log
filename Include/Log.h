@@ -218,6 +218,8 @@ namespace Log
 		template <typename ... Args>
 		void Echo(Args ... pArgs)
 		{
+			std::unique_lock<std::mutex> lock(s_logMutex);
+
 			if (!s_isInitialized)
 				return;
 
@@ -243,8 +245,9 @@ namespace Log
 			bool gotVersion = false;
 			std::string version = "";
 
-			s_logMutex.lock();
 			{
+				std::unique_lock<std::mutex> lock(s_logMutex);
+
 				if (pProductName.empty())
 					s_productName = "Logging"; // To write something like "Logging started"
 				else
@@ -256,7 +259,6 @@ namespace Log
 
 				s_isInitialized = true;
 			}
-			s_logMutex.unlock();
 
 			// Print welcome message
 
@@ -285,15 +287,15 @@ namespace Log
 			echo("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 			echo("");
 
-			s_logMutex.lock();
 			{
+				std::unique_lock<std::mutex> lock(s_logMutex);
+
 				// Clear static vars
 				s_productName.clear();
 				s_logFileName.clear();
 
 				s_isInitialized = false;
 			}
-			s_logMutex.unlock();
 		}
 
 		// Returns the DateTime string like this: "YYYY.MM.DD HH.MM.SS"
@@ -343,8 +345,6 @@ namespace Log
 		{
 			std::string dateTimeStr = GetDateTimeString();
 
-			s_logMutex.lock();
-
 			std::fstream m_logFile(s_logFileName, std::ios::app);
 			if (m_prefix.empty())
 			{
@@ -379,8 +379,6 @@ namespace Log
 			std::cout << pPar << std::endl;
 			m_logFile << pPar << std::endl;
 			m_logFile.close();
-
-			s_logMutex.unlock();
 		}
 
 	private:
