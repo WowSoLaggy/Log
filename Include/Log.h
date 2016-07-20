@@ -72,33 +72,20 @@
 
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Logger global aliases (defines)
+// Logger global defines
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 
-// Initializes logger. Should be called first of all. Writes the welcome message to the log
-// Params:
-// [in] const std::string & pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
-// [in] const std::string & pProductName	- product name used in the welcome message
-// [in] const std::string & pFilePath		- name of the file to take version from. Can be empty
-#define LOGINIT(pLogFileName, pProductName, pFilePath) Log::Log<void>::Init(pLogFileName, pProductName, pFilePath, -1)
+// Creates RAII log object
+#define LOGINIT auto unique_log = ::Log::unique_log
 
-// Initializes logger. Should be called first of all. Writes the welcome message to the log. Checks if the log file is to be rotated
-// Params:
-// [in] const std::string & pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
-// [in] const std::string & pProductName	- product name used in the welcome message
-// [in] const std::string & pFilePath		- name of the file to take version from. Can be empty
-// [in] int					pRotateFileSize	- maximum size of the log file. Checked only on the log init. -1 means no log rotation, 0 means rotate every time the log is inited
-#define LOGINIT_ROTATE(pLogFileName, pProductName, pFilePath, pRotateFileSize) Log::Log<void>::Init(pLogFileName, pProductName, pFilePath, pRotateFileSize)
 
-// Disposes logger. Writes the bye message to the log
-#define LOGDISPOSE Log::Log<void>::Dispose()
-
-// Macros that should be called before any echo-calls. Initializes the log object for the current function
+// Initializes the log object for the current function. Should be called before any echo-calls
 // Params:
 // [in] std::string pPrefix	- function name
 #define LOG(pPrefix) ::Log::Log<void> log(pPrefix)
+
 
 // Logs all given args
 #define echo log.Echo
@@ -410,6 +397,51 @@ namespace Log
 		}
 
 	}; // Log
+
+
+
+	// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+	// Logger RAII container
+	// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+
+	// RAII container for Log. Initializes static members in the ctor and releases in the dtor.
+	// The Log class should be called only while the lifetime of this container
+	class unique_log final
+	{
+	public:
+
+		// Initializes logger. Should be called first of all. Writes the welcome message to the log
+		// Params:
+		// [in] const std::string & pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
+		// [in] const std::string & pProductName	- product name used in the welcome message
+		// [in] const std::string & pFilePath		- name of the file to take version from. Can be empty
+		unique_log(const std::string &pLogFileName, const std::string &pProductName, const std::string &pFilePath)
+		{
+			::Log::Log<void>::Init(pLogFileName, pProductName, pFilePath, -1);
+		}
+
+		// Initializes logger with file rotation. Should be called first of all. Writes the welcome message to the log. Checks if the log file is to be rotated
+		// Params:
+		// [in] const std::string & pLogFileName	- log file name (ex. "Logs\myLog.log"). Warning: Directory should exist
+		// [in] const std::string & pProductName	- product name used in the welcome message
+		// [in] const std::string & pFilePath		- name of the file to take version from. Can be empty
+		// [in] int					pRotateFileSize	- maximum size of the log file. Checked only on the log init. -1 means no log rotation, 0 means rotate every time the log is inited
+		unique_log(const std::string &pLogFileName, const std::string &pProductName, const std::string &pFilePath, int pRotateFileSize)
+		{
+			::Log::Log<void>::Init(pLogFileName, pProductName, pFilePath, pRotateFileSize);
+		}
+
+		// Disposes logger. Writes the bye message to the log
+		~unique_log()
+		{
+			::Log::Log<void>::Dispose();
+		}
+
+	};
+
+
 
 	template<typename T>
 	volatile bool Log<T>::s_isInitialized = false;

@@ -52,14 +52,17 @@ namespace Log_test
 			DeleteFile(logFileName.c_str());
 			Logger::WriteMessage("Deleted existing log file.");
 
-			LOGINIT(logFileName, "Logger", "Log_test.dll");
-			Logger::WriteMessage("Logger inited.");
+			bool fileExists = false;
 
-			struct stat buffer;
-			bool fileExists = (stat(logFileName.c_str(), &buffer) == 0);
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll");
+				Logger::WriteMessage("Logger inited.");
+
+				struct stat buffer;
+				fileExists = (stat(logFileName.c_str(), &buffer) == 0);
+			}
 
 			// Cleanup after ourselves
-			LOGDISPOSE;
 			DeleteFile(logFileName.c_str());
 
 			Assert::IsTrue(fileExists, L"Log file wasn't created.");
@@ -72,32 +75,35 @@ namespace Log_test
 			DeleteFile(logFileName.c_str());
 			Logger::WriteMessage("Deleted existing log file.");
 
-			LOGINIT(logFileName, "Logger", "Log_test.dll");
-			Logger::WriteMessage("Logger inited.");
+			bool res = false;
 
-			std::string funcName = "Foo::Bar()";
-			std::string funcNameRegex = "Foo::Bar\\(\\)";
-			std::string testMessage1 = "Hello, world!";
-			std::string testMessage2 = ". One more test message";
-			std::string testMessage3 = ". And the last one.";
-			LOG(funcName);
-			echo(testMessage1, testMessage2, testMessage3);
-			Logger::WriteMessage("Echoed...");
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll");
+				Logger::WriteMessage("Logger inited.");
 
-			std::string testLine;
-			std::fstream file(logFileName, std::ios::in);
-			for (int i = 0; i < 6; ++i)
-				std::getline(file, testLine);
-			file.close();
+				std::string funcName = "Foo::Bar()";
+				std::string funcNameRegex = "Foo::Bar\\(\\)";
+				std::string testMessage1 = "Hello, world!";
+				std::string testMessage2 = ". One more test message";
+				std::string testMessage3 = ". And the last one.";
+				LOG(funcName);
+				echo(testMessage1, testMessage2, testMessage3);
+				Logger::WriteMessage("Echoed...");
 
-			// testLine should contain something like this:
-			// 2016.03.16 19:49:45 > Foo::Bar(): Hello, world!
-			std::regex regex(std::string("\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}:\\d{2} . ").append(funcNameRegex).append(": ").
-				append(testMessage1).append(testMessage2).append(testMessage3));
-			bool res = std::regex_match(testLine, regex);
+				std::string testLine;
+				std::fstream file(logFileName, std::ios::in);
+				for (int i = 0; i < 6; ++i)
+					std::getline(file, testLine);
+				file.close();
+
+				// testLine should contain something like this:
+				// 2016.03.16 19:49:45 > Foo::Bar(): Hello, world!
+				std::regex regex(std::string("\\d{4}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}:\\d{2} . ").append(funcNameRegex).append(": ").
+					append(testMessage1).append(testMessage2).append(testMessage3));
+				res = std::regex_match(testLine, regex);
+			}
 
 			// Cleanup after ourselves
-			LOGDISPOSE;
 			DeleteFile(logFileName.c_str());
 
 			Assert::IsTrue(res, L"Log output to file is invalid.");
@@ -113,29 +119,37 @@ namespace Log_test
 			DeleteFile(logFileName0.c_str());
 			DeleteFile(logFileName1.c_str());
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", -1);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file was not created.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
-			LOGDISPOSE;
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", -1);
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", -1);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
-			LOGDISPOSE;
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file was not created.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			}
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 0);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
-			Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
-			LOGDISPOSE;
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", -1);
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", -1);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
-			Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
-			LOGDISPOSE;
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			}
+
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", 0);
+
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+				Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			}
+
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", -1);
+
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+				Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName1), L"Unnecessary log file .1 was created.");
+			}
 
 			DeleteFile(logFileName.c_str());
 			DeleteFile(logFileName0.c_str());
@@ -148,23 +162,29 @@ namespace Log_test
 			DeleteFile(logFileName.c_str());
 			DeleteFile(logFileName0.c_str());
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 2000);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file was not created.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
-			LOGDISPOSE;
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", 2000);
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 2000);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
-			Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
-			LOG("Test::Test()");
-			std::string str(2048, 'q');
-			echo(str);
-			LOGDISPOSE;
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file was not created.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+			}
 
-			LOGINIT_ROTATE(logFileName, "Logger", "Log_test.dll", 2000);
-			Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
-			Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
-			LOGDISPOSE;
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", 2000);
+
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+				Assert::IsTrue(!Log::CheckFileExists(logFileName0), L"Unnecessary log file .0 was created.");
+				LOG("Test::Test()");
+				std::string str(2048, 'q');
+				echo(str);
+			}
+
+			{
+				LOGINIT(logFileName, "Logger", "Log_test.dll", 2000);
+
+				Assert::IsTrue(Log::CheckFileExists(logFileName), L"Log file disappeared.");
+				Assert::IsTrue(Log::CheckFileExists(logFileName0), L"New log file .0 was not created.");
+			}
 
 			DeleteFile(logFileName.c_str());
 			DeleteFile(logFileName0.c_str());
