@@ -10,3 +10,7 @@ Changelog:
 
 v1.2
 - log rotation is now supported (only on log init)
+
+<br>
+Anton Egorov, 2016<br>
+dohxehapo@gmail.com
