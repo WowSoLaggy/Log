@@ -116,7 +116,7 @@ namespace Log
 		if (dwSize == 0)
 		{
 			//TRACE("GetFileVersionInfoSize failed with error %d\n", GetLastError());
-			DWORD err = GetLastError();
+			//DWORD err = GetLastError();
 			return false;
 		}
 		std::vector<unsigned char> data(dwSize);
